@@ -27,8 +27,12 @@ public class PlayerMovement : NetworkBehaviour
 
     public override void OnStartLocalPlayer()
     {
+        // Disable the scene overview camera so only the player's FPS camera renders
+        if (Camera.main != null)
+            Camera.main.gameObject.SetActive(false);
+
         // Enable the camera only for the local player
-        Camera cam = cameraHolder.GetComponentInChildren<Camera>();
+        Camera cam = cameraHolder.GetComponentInChildren<Camera>(includeInactive: true);
         if (cam != null)
             cam.gameObject.SetActive(true);
 
