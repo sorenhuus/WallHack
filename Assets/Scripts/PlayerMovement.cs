@@ -70,10 +70,6 @@ public class PlayerMovement : NetworkBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
-        // NetworkTransformReliable handles remote players only
-        // Local player controls its own position via prediction
-        GetComponent<NetworkTransformReliable>().enabled = false;
     }
 
     private void Start()
@@ -179,6 +175,15 @@ public class PlayerMovement : NetworkBehaviour
         // Send authoritative position tagged with the client's tick
         if (connectionToClient != null)
             RpcCorrectPosition(connectionToClient, transform.position, _serverVelocity, _serverTick);
+    }
+
+    // Called by VisibilitySystem to update this player's position on an observing client
+    [TargetRpc]
+    public void RpcSetRemotePosition(NetworkConnectionToClient target, Vector3 position, Quaternion rotation)
+    {
+        if (isLocalPlayer) return;
+        transform.position = position;
+        transform.rotation = rotation;
     }
 
     // Client: receive server correction and reconcile using rollback + replay

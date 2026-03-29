@@ -14,9 +14,8 @@ GameObject:
   - component: {fileID: 1618358334170862002}
   - component: {fileID: -5772083068941659742}
   - component: {fileID: -7266853150804186526}
-  - component: {fileID: -1712936960752410346}
   - component: {fileID: -5202392128188082273}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -160,40 +159,6 @@ MonoBehaviour:
   verticalLookLimit: 80
   reconcileThreshold: 0.1
   cameraHolder: {fileID: 3466280436621110214}
---- !u!114 &-1712936960752410346
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1915243147651511359}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Mirror.Components::Mirror.NetworkTransformReliable
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  target: {fileID: 3508491972746722148}
-  syncPosition: 1
-  syncRotation: 1
-  syncScale: 0
-  onlySyncOnChange: 1
-  compressRotation: 1
-  interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
-  coordinateSpace: 0
-  timelineOffset: 1
-  showGizmos: 0
-  showOverlay: 0
-  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  onlySyncOnChangeCorrectionMultiplier: 2
-  useFixedUpdate: 0
-  rotationSensitivity: 0.01
-  positionPrecision: 0.01
-  scalePrecision: 0.01
 --- !u!114 &-5202392128188082273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -223,7 +188,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3466280436621110214}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CameraHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -258,7 +223,7 @@ GameObject:
   - component: {fileID: 6893876372436033077}
   - component: {fileID: 3447005529465686558}
   - component: {fileID: 1907224915212502073}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
