@@ -399,7 +399,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Mirror.Transports::Mirror.LatencySimulation
   wrap: {fileID: 396095332}
-  latency: 2036
+  latency: 200
   jitter: 0.02
   jitterSpeed: 1
   unreliableLoss: 2

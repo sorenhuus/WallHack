@@ -15,7 +15,6 @@ public class PlayerMovement : NetworkBehaviour
 
     [Header("Prediction")]
     [SerializeField] private float reconcileThreshold = 0.1f;  // min error before reconciling
-    [SerializeField] private float reconcileSnapDistance = 2f; // snap instantly beyond this
 
     [Header("References")]
     [SerializeField] private Transform cameraHolder;
