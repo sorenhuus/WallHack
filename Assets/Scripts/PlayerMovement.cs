@@ -100,7 +100,7 @@ public class PlayerMovement : NetworkBehaviour
         bool  jump = Input.GetButtonDown("Jump");
 
         // Run prediction locally
-        PredictMovement(h, v, jump);
+        SimulateMovement(h, v, jump, Time.deltaTime);
 
         // Store snapshot AFTER moving so position reflects this tick's result
         int index = tick % HistorySize;
@@ -118,7 +118,7 @@ public class PlayerMovement : NetworkBehaviour
         CmdSetInput(h, v, jump, transform.eulerAngles.y, tick);
     }
 
-    private void PredictMovement(float h, float v, bool jump)
+    private void SimulateMovement(float h, float v, bool jump, float deltaTime)
     {
         bool isGrounded = _controller.isGrounded;
 
@@ -129,13 +129,13 @@ public class PlayerMovement : NetworkBehaviour
         if (move.magnitude > 1f)
             move.Normalize();
 
-        _controller.Move(move * moveSpeed * Time.deltaTime);
+        _controller.Move(move * moveSpeed * deltaTime);
 
         if (jump && isGrounded)
             _clientVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
-        _clientVelocity.y += gravity * Time.deltaTime;
-        _controller.Move(_clientVelocity * Time.deltaTime);
+        _clientVelocity.y += gravity * deltaTime;
+        _controller.Move(_clientVelocity * deltaTime);
     }
 
     // Server: receive and store input
@@ -212,7 +212,7 @@ public class PlayerMovement : NetworkBehaviour
             if (replaySnap.tick != t) break; // gap in history, stop replay
 
             transform.rotation = Quaternion.Euler(0f, replaySnap.yaw, 0f);
-            ReplayMovement(replaySnap.horizontal, replaySnap.vertical, replaySnap.jump);
+            SimulateMovement(replaySnap.horizontal, replaySnap.vertical, replaySnap.jump, Time.fixedDeltaTime);
 
             // Update stored position to reflect corrected replay
             _history[replayIndex].position = transform.position;
@@ -220,26 +220,6 @@ public class PlayerMovement : NetworkBehaviour
         }
     }
 
-    // Same movement logic as PredictMovement but uses fixedDeltaTime to match server ticks
-    private void ReplayMovement(float h, float v, bool jump)
-    {
-        bool isGrounded = _controller.isGrounded;
-
-        if (isGrounded && _clientVelocity.y < 0f)
-            _clientVelocity.y = -2f;
-
-        Vector3 move = transform.right * h + transform.forward * v;
-        if (move.magnitude > 1f)
-            move.Normalize();
-
-        _controller.Move(move * moveSpeed * Time.fixedDeltaTime);
-
-        if (jump && isGrounded)
-            _clientVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-
-        _clientVelocity.y += gravity * Time.fixedDeltaTime;
-        _controller.Move(_clientVelocity * Time.fixedDeltaTime);
-    }
 
     // Re-apply local rotation after any network update
     private void LateUpdate()
