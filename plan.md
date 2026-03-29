@@ -12,15 +12,7 @@ Build an FPS game that explores anti-wallhack security by implementing server-au
 - Set up basic server-client connection
 - Create simple test scene with network manager
 
-### 2. Basic FPS Mechanics
-- Player movement (WASD, sprint, crouch) - built with networking in mind
-- Camera controls (mouse look, first-person perspective)
-- Shooting mechanics (weapon handling, firing, recoil)
-- Basic player health and damage system
-- Crosshair and basic UI
-- Ensure all mechanics work in networked context
-
-### 3. Network Synchronization
+### 2. Network Synchronization
 - Implement client-server architecture fully
 - Basic player spawning and connection handling
 - Synchronize player transforms (position, rotation)

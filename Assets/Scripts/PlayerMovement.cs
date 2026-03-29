@@ -17,8 +17,15 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private Transform cameraHolder;
 
     private CharacterController _controller;
-    private Vector3 _velocity;
+    private Vector3 _serverVelocity;
     private float _verticalRotation;
+    private float _localYaw;
+
+    // Latest input state stored on the server
+    private float _inputH;
+    private float _inputV;
+    private float _inputYaw;
+    private bool _jumpQueued;
 
     private void Awake()
     {
@@ -27,11 +34,9 @@ public class PlayerMovement : NetworkBehaviour
 
     public override void OnStartLocalPlayer()
     {
-        // Disable the scene overview camera so only the player's FPS camera renders
         if (Camera.main != null)
             Camera.main.gameObject.SetActive(false);
 
-        // Enable the camera only for the local player
         Camera cam = cameraHolder.GetComponentInChildren<Camera>(includeInactive: true);
         if (cam != null)
             cam.gameObject.SetActive(true);
@@ -42,7 +47,6 @@ public class PlayerMovement : NetworkBehaviour
 
     private void Start()
     {
-        // Disable camera for remote players (it starts disabled in prefab)
         if (!isLocalPlayer)
         {
             Camera cam = cameraHolder.GetComponentInChildren<Camera>();
@@ -51,13 +55,67 @@ public class PlayerMovement : NetworkBehaviour
         }
     }
 
+    // Client: read input every frame and send to server
     private void Update()
     {
         if (!isLocalPlayer) return;
 
         HandleMouseLook();
-        HandleMovement();
         HandleCursorLock();
+
+        bool jump = Input.GetButtonDown("Jump");
+        CmdSetInput(
+            Input.GetAxisRaw("Horizontal"),
+            Input.GetAxisRaw("Vertical"),
+            jump,
+            transform.eulerAngles.y
+        );
+    }
+
+    // Server: store latest input — movement applied in FixedUpdate
+    [Command]
+    private void CmdSetInput(float horizontal, float vertical, bool jump, float yaw)
+    {
+        _inputH = horizontal;
+        _inputV = vertical;
+        _inputYaw = yaw;
+        if (jump) _jumpQueued = true; // latch jump so it isn't missed between ticks
+    }
+
+    // Server: apply movement once per tick using fixed deltaTime
+    private void FixedUpdate()
+    {
+        if (!isServer) return;
+
+        transform.rotation = Quaternion.Euler(0f, _inputYaw, 0f);
+
+        bool isGrounded = _controller.isGrounded;
+
+        if (isGrounded && _serverVelocity.y < 0f)
+            _serverVelocity.y = -2f;
+
+        Vector3 move = transform.right * _inputH + transform.forward * _inputV;
+        if (move.magnitude > 1f)
+            move.Normalize();
+
+        _controller.Move(move * moveSpeed * Time.fixedDeltaTime);
+
+        if (_jumpQueued && isGrounded)
+        {
+            _serverVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            _jumpQueued = false;
+        }
+
+        _serverVelocity.y += gravity * Time.fixedDeltaTime;
+        _controller.Move(_serverVelocity * Time.fixedDeltaTime);
+    }
+
+    // Re-apply local rotation after NetworkTransform overwrites it
+    private void LateUpdate()
+    {
+        if (!isLocalPlayer) return;
+        transform.rotation = Quaternion.Euler(0f, _localYaw, 0f);
+        cameraHolder.localRotation = Quaternion.Euler(_verticalRotation, 0f, 0f);
     }
 
     private void HandleMouseLook()
@@ -65,40 +123,12 @@ public class PlayerMovement : NetworkBehaviour
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        // Rotate player body left/right
         transform.Rotate(Vector3.up * mouseX);
+        _localYaw = transform.eulerAngles.y;
 
-        // Rotate camera up/down (clamped)
         _verticalRotation -= mouseY;
         _verticalRotation = Mathf.Clamp(_verticalRotation, -verticalLookLimit, verticalLookLimit);
         cameraHolder.localRotation = Quaternion.Euler(_verticalRotation, 0f, 0f);
-    }
-
-    private void HandleMovement()
-    {
-        bool isGrounded = _controller.isGrounded;
-
-        if (isGrounded && _velocity.y < 0f)
-            _velocity.y = -2f; // keep grounded
-
-        float horizontal = Input.GetAxisRaw("Horizontal"); // A/D
-        float vertical   = Input.GetAxisRaw("Vertical");   // W/S
-
-        Vector3 move = transform.right * horizontal + transform.forward * vertical;
-
-        // Normalize diagonal movement
-        if (move.magnitude > 1f)
-            move.Normalize();
-
-        _controller.Move(move * moveSpeed * Time.deltaTime);
-
-        // Jump
-        if (Input.GetButtonDown("Jump") && isGrounded)
-            _velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-
-        // Apply gravity
-        _velocity.y += gravity * Time.deltaTime;
-        _controller.Move(_velocity * Time.deltaTime);
     }
 
     private void HandleCursorLock()
