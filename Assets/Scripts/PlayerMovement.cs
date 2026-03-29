@@ -16,6 +16,9 @@ public class PlayerMovement : NetworkBehaviour
     [Header("Prediction")]
     [SerializeField] private float reconcileThreshold = 0.1f;  // min error before reconciling
 
+    [Header("Footsteps")]
+    [SerializeField] private float stepDistance = 1.5f;
+
     [Header("References")]
     [SerializeField] private Transform cameraHolder;
 
@@ -53,6 +56,11 @@ public class PlayerMovement : NetworkBehaviour
 
     // --- Server authoritative velocity ---
     private Vector3 _serverVelocity;
+
+    // --- Footstep tracking ---
+    private float _clientStepAccum;
+    private bool  _wasMoving;
+    private float _lastStepTime;
 
     private void Awake()
     {
@@ -112,6 +120,36 @@ public class PlayerMovement : NetworkBehaviour
         };
 
         CmdSetInput(h, v, jump, transform.eulerAngles.y, tick);
+
+        // Local footstep sounds — play immediately without network round-trip
+        bool movingHorizontally = Mathf.Abs(h) > 0.1f || Mathf.Abs(v) > 0.1f;
+        if (movingHorizontally && _controller.isGrounded)
+        {
+            if (!_wasMoving && Time.time - _lastStepTime >= stepDistance / moveSpeed)
+            {
+                _clientStepAccum = 0f;
+                _lastStepTime = Time.time;
+                if (SoundManager.Instance != null)
+                    SoundManager.Instance.PlayFootstepAt(transform.position);
+            }
+            else
+            {
+                _clientStepAccum += moveSpeed * Time.deltaTime;
+                if (_clientStepAccum >= stepDistance)
+                {
+                    _clientStepAccum = 0f;
+                    _lastStepTime = Time.time;
+                    if (SoundManager.Instance != null)
+                        SoundManager.Instance.PlayFootstepAt(transform.position);
+                }
+            }
+            _wasMoving = true;
+        }
+        else
+        {
+            _clientStepAccum = 0f;
+            _wasMoving = false;
+        }
     }
 
     private void SimulateMovement(float h, float v, bool jump, float deltaTime)
