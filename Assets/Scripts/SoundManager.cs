@@ -10,6 +10,10 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] private AudioClip[] footstepClips;
 
+    [Header("Sound Marker")]
+    [SerializeField] private Material soundMarkerMaterial;
+    [SerializeField] private float markerDuration = 1f;
+
     [Header("Footstep Rolloff")]
     [SerializeField] private float minDistance = 5f;   // full volume within this range
     [SerializeField] private float maxDistance = 30f;  // inaudible beyond this range
@@ -45,5 +49,8 @@ public class SoundManager : MonoBehaviour
         source.Play();
 
         Destroy(go, clip.length);
+
+        if (soundMarkerMaterial != null)
+            SoundMarker.Spawn(position, markerDuration, soundMarkerMaterial);
     }
 }
