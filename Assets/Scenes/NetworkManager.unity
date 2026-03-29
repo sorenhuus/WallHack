@@ -477,6 +477,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 6eee7f295d5ff8b4f934dec7f44eaf97, type: 3}
   - {fileID: 8300000, guid: 9b1f6289334342841afe6a5a8349e7ec, type: 3}
   - {fileID: 8300000, guid: afeb90013e6764449ae1616f47705ff7, type: 3}
+  minDistance: 5
+  maxDistance: 20
+  rolloffMode: 1
 --- !u!1 &653682828
 GameObject:
   m_ObjectHideFlags: 0

@@ -61,6 +61,9 @@ public class PlayerMovement : NetworkBehaviour
     private float _clientStepAccum;
     private bool  _wasMoving;
     private float _lastStepTime;
+    private float _serverStepAccum;
+    private bool  _serverWasMoving;
+    private float _serverLastStepTime;
 
     private void Awake()
     {
@@ -213,6 +216,41 @@ public class PlayerMovement : NetworkBehaviour
         // Send authoritative position tagged with the client's tick
         if (connectionToClient != null)
             RpcCorrectPosition(connectionToClient, transform.position, _serverVelocity, _serverTick);
+
+        // Server-side footstep detection — broadcast to all other clients
+        bool serverMoving = (Mathf.Abs(_inputH) > 0.1f || Mathf.Abs(_inputV) > 0.1f) && _controller.isGrounded;
+        if (serverMoving)
+        {
+            if (!_serverWasMoving && Time.fixedTime - _serverLastStepTime >= stepDistance / moveSpeed)
+            {
+                _serverStepAccum = 0f;
+                _serverLastStepTime = Time.fixedTime;
+                RpcPlayFootstep(transform.position);
+            }
+            else
+            {
+                _serverStepAccum += moveSpeed * Time.fixedDeltaTime;
+                if (_serverStepAccum >= stepDistance)
+                {
+                    _serverStepAccum = 0f;
+                    _serverLastStepTime = Time.fixedTime;
+                    RpcPlayFootstep(transform.position);
+                }
+            }
+            _serverWasMoving = true;
+        }
+        else
+        {
+            _serverStepAccum = 0f;
+            _serverWasMoving = false;
+        }
+    }
+
+    [ClientRpc(includeOwner = false)]
+    private void RpcPlayFootstep(Vector3 position)
+    {
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayFootstepAt(position);
     }
 
     // Called by VisibilitySystem to update this player's position on an observing client

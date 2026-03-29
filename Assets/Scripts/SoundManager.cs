@@ -10,6 +10,11 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] private AudioClip[] footstepClips;
 
+    [Header("Footstep Rolloff")]
+    [SerializeField] private float minDistance = 5f;   // full volume within this range
+    [SerializeField] private float maxDistance = 30f;  // inaudible beyond this range
+    [SerializeField] private AudioRolloffMode rolloffMode = AudioRolloffMode.Linear;
+
     private int _lastFootstepIndex = -1;
 
     private void Awake()
@@ -33,7 +38,10 @@ public class SoundManager : MonoBehaviour
 
         AudioSource source = go.AddComponent<AudioSource>();
         source.clip = clip;
-        source.spatialBlend = 1f; // full 3D
+        source.spatialBlend = 1f;
+        source.rolloffMode = rolloffMode;
+        source.minDistance = minDistance;
+        source.maxDistance = maxDistance;
         source.Play();
 
         Destroy(go, clip.length);
