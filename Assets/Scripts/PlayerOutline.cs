@@ -79,6 +79,22 @@ public class PlayerOutline : NetworkBehaviour
         MeshFilter sourceMesh = GetComponentInChildren<MeshFilter>();
         if (sourceMesh == null) return;
 
+        // Inner blocker — normal scale, writes depth only to mask out the capsule center
+        GameObject blocker = new GameObject("OutlineBlocker");
+        blocker.layer = OutlineLayer;
+        blocker.transform.SetParent(sourceMesh.transform, false);
+
+        MeshFilter blockerMf = blocker.AddComponent<MeshFilter>();
+        blockerMf.mesh = sourceMesh.sharedMesh;
+
+        MeshRenderer blockerMr = blocker.AddComponent<MeshRenderer>();
+        blockerMr.shadowCastingMode = ShadowCastingMode.Off;
+        blockerMr.receiveShadows = false;
+
+        Material blockerMat = new Material(Shader.Find("Custom/OutlineBlocker"));
+        blockerMr.material = blockerMat;
+
+        // Outer outline — slightly scaled, front-face culled, renders only at edges
         _outlineMesh = new GameObject("OutlineMesh");
         _outlineMesh.layer = OutlineLayer;
         _outlineMesh.transform.SetParent(sourceMesh.transform, false);
@@ -91,10 +107,9 @@ public class PlayerOutline : NetworkBehaviour
         mr.shadowCastingMode = ShadowCastingMode.Off;
         mr.receiveShadows = false;
 
-        Material mat = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
-        mat.SetColor("_BaseColor", outlineColor);
-        mat.SetInt("_Cull", (int)CullMode.Front);
-        mr.material = mat;
+        Material outlineMat = new Material(Shader.Find("Custom/OutlineColor"));
+        outlineMat.SetColor("_OutlineColor", outlineColor);
+        mr.material = outlineMat;
     }
 
     private void OnDestroy()
