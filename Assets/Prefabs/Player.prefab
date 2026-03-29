@@ -159,7 +159,6 @@ MonoBehaviour:
   mouseSensitivity: 2
   verticalLookLimit: 80
   reconcileThreshold: 0.1
-  reconcileSnapDistance: 2
   cameraHolder: {fileID: 3466280436621110214}
 --- !u!114 &-1712936960752410346
 MonoBehaviour:
@@ -213,6 +212,8 @@ MonoBehaviour:
   outlineColor: {r: 1, g: 0, b: 0, a: 1}
   outlineScale: 1.08
   cameraHolder: {fileID: 3466280436621110214}
+  outlineBlockerMaterial: {fileID: 2100000, guid: 31e36ac0cfffd7c459623755f056e3c9, type: 2}
+  outlineColorMaterial: {fileID: 2100000, guid: a6a5889f2ee802049b2ef29ecc096c79, type: 2}
 --- !u!1 &4850517382498281349
 GameObject:
   m_ObjectHideFlags: 0

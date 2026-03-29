@@ -7,13 +7,13 @@ Shader "Custom/OutlineColor"
 
     SubShader
     {
-        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" "Queue"="Geometry+1" }
+        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" }
 
         Pass
         {
             Cull Front
             ZWrite Off
-            ZTest LessEqual
+            ZTest LEqual
 
             HLSLPROGRAM
             #pragma vertex vert

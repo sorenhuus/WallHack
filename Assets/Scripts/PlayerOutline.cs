@@ -13,6 +13,8 @@ public class PlayerOutline : NetworkBehaviour
     [SerializeField] private Color outlineColor = Color.red;
     [SerializeField] private float outlineScale = 1.08f;
     [SerializeField] private Transform cameraHolder;
+    [SerializeField] private Material outlineBlockerMaterial;
+    [SerializeField] private Material outlineColorMaterial;
 
     private static int OutlineLayer = -1;
 
@@ -91,7 +93,7 @@ public class PlayerOutline : NetworkBehaviour
         blockerMr.shadowCastingMode = ShadowCastingMode.Off;
         blockerMr.receiveShadows = false;
 
-        Material blockerMat = new Material(Shader.Find("Custom/OutlineBlocker"));
+        Material blockerMat = new Material(outlineBlockerMaterial);
         blockerMr.material = blockerMat;
 
         // Outer outline — slightly scaled, front-face culled, renders only at edges
@@ -107,8 +109,9 @@ public class PlayerOutline : NetworkBehaviour
         mr.shadowCastingMode = ShadowCastingMode.Off;
         mr.receiveShadows = false;
 
-        Material outlineMat = new Material(Shader.Find("Custom/OutlineColor"));
+        Material outlineMat = new Material(outlineColorMaterial);
         outlineMat.SetColor("_OutlineColor", outlineColor);
+        outlineMat.renderQueue = 2001;
         mr.material = outlineMat;
     }
 
