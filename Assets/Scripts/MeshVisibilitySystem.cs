@@ -15,6 +15,7 @@ public class MeshVisibilitySystem : MonoBehaviour
     [SerializeField] private LayerMask occlusionMask = Physics.DefaultRaycastLayers;
 
     private Vector3[] _localTargets;
+    private float _eyeOffset;
 
     private readonly List<NetworkIdentity> _players = new();
     private readonly List<PlayerMovement> _movements = new();
@@ -36,8 +37,17 @@ public class MeshVisibilitySystem : MonoBehaviour
             return;
         }
 
+        Camera cam = playerPrefab.GetComponentInChildren<Camera>(includeInactive: true);
+        if (cam == null)
+        {
+            Debug.LogError("MeshVisibilitySystem: No Camera found on playerPrefab.");
+            enabled = false;
+            return;
+        }
+        _eyeOffset = cam.transform.localPosition.y;
+
         Vector3[] vertices = mf.sharedMesh.vertices;
-        Vector3[] normals  = mf.sharedMesh.normals;
+        Vector3[] normals = mf.sharedMesh.normals;
 
         // Account for the MeshFilter's local offset within the prefab
         Transform meshTransform = mf.transform;
@@ -91,13 +101,13 @@ public class MeshVisibilitySystem : MonoBehaviour
 
     private bool CanSee(Vector3 observerBase, Vector3 observedBase)
     {
-        Vector3 observerEye = observerBase + Vector3.up * GetEyeOffset();
+        Vector3 observerEye = observerBase + Vector3.up * _eyeOffset;
 
         foreach (Vector3 localTarget in _localTargets)
         {
             // Offset the pre-computed target by the observed player's world position
             Vector3 worldTarget = observedBase + localTarget;
-            Vector3 direction   = worldTarget - observerEye;
+            Vector3 direction = worldTarget - observerEye;
 
             RaycastCounter.Increment();
             if (!Physics.Raycast(observerEye, direction.normalized, direction.magnitude, occlusionMask))
@@ -107,12 +117,4 @@ public class MeshVisibilitySystem : MonoBehaviour
         return false;
     }
 
-    private float _eyeOffset = -1f;
-    private float GetEyeOffset()
-    {
-        if (_eyeOffset >= 0f) return _eyeOffset;
-        Camera cam = playerPrefab.GetComponentInChildren<Camera>(includeInactive: true);
-        _eyeOffset = cam != null ? cam.transform.position.y : 1.6f;
-        return _eyeOffset;
-    }
 }
