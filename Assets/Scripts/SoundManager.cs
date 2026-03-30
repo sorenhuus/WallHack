@@ -19,6 +19,8 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private float maxDistance = 30f;  // inaudible beyond this range
     [SerializeField] private AudioRolloffMode rolloffMode = AudioRolloffMode.Linear;
 
+    public float MaxDistance => maxDistance;
+
     private int _lastFootstepIndex = -1;
 
     private void Awake()

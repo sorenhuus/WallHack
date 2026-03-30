@@ -225,7 +225,7 @@ public class PlayerMovement : NetworkBehaviour
             {
                 _serverStepAccum = 0f;
                 _serverLastStepTime = Time.fixedTime;
-                RpcPlayFootstep(transform.position);
+                BroadcastFootstep(transform.position);
             }
             else
             {
@@ -234,7 +234,7 @@ public class PlayerMovement : NetworkBehaviour
                 {
                     _serverStepAccum = 0f;
                     _serverLastStepTime = Time.fixedTime;
-                    RpcPlayFootstep(transform.position);
+                    BroadcastFootstep(transform.position);
                 }
             }
             _serverWasMoving = true;
@@ -246,8 +246,24 @@ public class PlayerMovement : NetworkBehaviour
         }
     }
 
-    [ClientRpc(includeOwner = false)]
-    private void RpcPlayFootstep(Vector3 position)
+    private void BroadcastFootstep(Vector3 position)
+    {
+        if (SoundManager.Instance == null) return;
+        float maxDist = SoundManager.Instance.MaxDistance;
+
+        foreach (var conn in NetworkServer.connections.Values)
+        {
+            if (conn == connectionToClient) continue;                          // skip owner
+            if (conn.identity == null) continue;
+
+            float dist = Vector3.Distance(position, conn.identity.transform.position);
+            if (dist <= maxDist)
+                RpcPlayFootstep(conn as NetworkConnectionToClient, position);
+        }
+    }
+
+    [TargetRpc]
+    private void RpcPlayFootstep(NetworkConnectionToClient target, Vector3 position)
     {
         if (SoundManager.Instance != null)
             SoundManager.Instance.PlayFootstepAt(position, showMarker: true);
