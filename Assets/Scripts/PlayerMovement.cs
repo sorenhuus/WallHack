@@ -133,7 +133,7 @@ public class PlayerMovement : NetworkBehaviour
                 _clientStepAccum = 0f;
                 _lastStepTime = Time.time;
                 if (SoundManager.Instance != null)
-                    SoundManager.Instance.PlayFootstepAt(transform.position);
+                    SoundManager.Instance.PlayFootstepAt(transform.position, showMarker: false);
             }
             else
             {
@@ -143,7 +143,7 @@ public class PlayerMovement : NetworkBehaviour
                     _clientStepAccum = 0f;
                     _lastStepTime = Time.time;
                     if (SoundManager.Instance != null)
-                        SoundManager.Instance.PlayFootstepAt(transform.position);
+                        SoundManager.Instance.PlayFootstepAt(transform.position, showMarker: false);
                 }
             }
             _wasMoving = true;
@@ -250,7 +250,7 @@ public class PlayerMovement : NetworkBehaviour
     private void RpcPlayFootstep(Vector3 position)
     {
         if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayFootstepAt(position);
+            SoundManager.Instance.PlayFootstepAt(position, showMarker: true);
     }
 
     // Called by VisibilitySystem to update this player's position on an observing client

@@ -26,7 +26,7 @@ public class SoundManager : MonoBehaviour
         Instance = this;
     }
 
-    public void PlayFootstepAt(Vector3 position)
+    public void PlayFootstepAt(Vector3 position, bool showMarker = true)
     {
         if (footstepClips == null || footstepClips.Length == 0) return;
 
@@ -50,7 +50,7 @@ public class SoundManager : MonoBehaviour
 
         Destroy(go, clip.length);
 
-        if (soundMarkerMaterial != null)
+        if (showMarker && soundMarkerMaterial != null)
             SoundMarker.Spawn(position, markerDuration, soundMarkerMaterial);
     }
 }
