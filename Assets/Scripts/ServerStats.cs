@@ -66,6 +66,7 @@ public class ServerStats : MonoBehaviour
         long reservedMB  = Profiler.GetTotalReservedMemoryLong()  / (1024 * 1024);
         long processMB   = _process.WorkingSet64 / (1024 * 1024);
         int  players     = NetworkServer.connections.Count;
+        int  raycasts    = RaycastCounter.GetAndReset();
 
         _statsDisplay =
             $"Players:     {players}\n" +
@@ -73,7 +74,8 @@ public class ServerStats : MonoBehaviour
             $"Tick avg:    {avgTickMs:F2} ms\n" +
             $"Tick max:    {_maxTickMs:F2} ms\n" +
             $"Unity mem:   {allocatedMB} / {reservedMB} MB\n" +
-            $"Process RAM: {processMB} MB";
+            $"Process RAM: {processMB} MB\n" +
+            $"Raycasts/s:  {raycasts}";
 
         _tickAccumMs = 0f;
         _tickCount   = 0;

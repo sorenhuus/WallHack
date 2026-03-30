@@ -720,10 +720,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeshVisibilitySystem
   playerPrefab: {fileID: 1915243147651511359, guid: 75c4c0403cc89c7449af23745337eec9, type: 3}
-  vertexPadding: 0.15
+  vertexPadding: 2
   occlusionMask:
     serializedVersion: 2
-    m_Bits: 251
+    m_Bits: 119
 --- !u!1 &653682828
 GameObject:
   m_ObjectHideFlags: 0

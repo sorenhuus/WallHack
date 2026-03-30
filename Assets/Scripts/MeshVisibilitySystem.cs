@@ -99,6 +99,7 @@ public class MeshVisibilitySystem : MonoBehaviour
             Vector3 worldTarget = observedBase + localTarget;
             Vector3 direction   = worldTarget - observerEye;
 
+            RaycastCounter.Increment();
             if (!Physics.Raycast(observerEye, direction.normalized, direction.magnitude, occlusionMask))
                 return true;
         }

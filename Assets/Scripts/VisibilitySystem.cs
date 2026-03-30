@@ -59,6 +59,7 @@ public class VisibilitySystem : MonoBehaviour
         Vector3 from = fromBase + Vector3.up * eyeHeight;
         Vector3 to   = toBase   + Vector3.up * eyeHeight;
         Vector3 direction = to - from;
+        RaycastCounter.Increment();
         return !Physics.Raycast(from, direction.normalized, direction.magnitude, occlusionMask);
     }
 }

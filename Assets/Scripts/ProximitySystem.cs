@@ -85,6 +85,7 @@ public class ProximitySystem : MonoBehaviour
         foreach (var target in targets)
         {
             Vector3 direction = target - origin;
+            RaycastCounter.Increment();
             if (!Physics.Raycast(origin, direction.normalized, direction.magnitude, occlusionMask))
                 return true;
         }
